@@ -81,10 +81,9 @@ void CoDelQueue::enque(Packet* pkt)
     if(q_->length() >= qlim_) {
         // tail drop
         drop(pkt);
-    } else if (q_->length() >= thresh_) {
-        // ecn marking
+    } else if (q_->length() >= thresh_){
         hdr_flags* hf = hdr_flags::access(pkt);
-		hf->ce() = 1;
+        hf->ce() = 1;
         q_->enque(pkt);
     } else {
         HDR_CMN(pkt)->ts_ = Scheduler::instance().clock();
@@ -169,7 +168,9 @@ Packet* CoDelQueue::deque()
         // rates so high that the next drop should happen now, hence the
         // ‘while’ loop.
         while (now >= drop_next_ && dropping_) {
-            drop(r.p);
+            // drop(r.p);
+            hdr_flags* hf = hdr_flags::access(r.p);
+            hf->ce() = 1;
             ++count_;
             r = dodeque();
             if (! r.ok_to_drop) {
@@ -184,7 +185,9 @@ Packet* CoDelQueue::deque()
     // If we get here we’re not in dropping state. 'ok_to_drop' means that the
     // sojourn time has been above target for interval so enter dropping state.
     } else if (r.ok_to_drop) {
-        drop(r.p);
+        // drop(r.p);
+        hdr_flags* hf = hdr_flags::access(r.p);
+        hf->ce() = 1;
         r = dodeque();
         dropping_ = 1;
 

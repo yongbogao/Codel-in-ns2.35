@@ -55,6 +55,7 @@ CoDelQueue::CoDelQueue() : tchan_(0)
     bind("target_", &target_);  // target min delay in clock ticks
     bind("curq_", &curq_);      // current queue size in bytes
     bind("d_exp_", &d_exp_);    // current delay experienced in clock ticks
+    bind("thresh_", &thresh_);
     q_ = new PacketQueue();     // underlying queue
     pq_ = q_;
     reset();
@@ -80,6 +81,11 @@ void CoDelQueue::enque(Packet* pkt)
     if(q_->length() >= qlim_) {
         // tail drop
         drop(pkt);
+    } else if (q_->length() >= thresh_) {
+        // ecn marking
+        hdr_flags* hf = hdr_flags::access(pkt);
+		hf->ce() = 1;
+        q_->enque(pkt);
     } else {
         HDR_CMN(pkt)->ts_ = Scheduler::instance().clock();
         q_->enque(pkt);

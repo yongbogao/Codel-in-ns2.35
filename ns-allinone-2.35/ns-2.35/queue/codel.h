@@ -65,6 +65,8 @@ class CoDelQueue : public Queue {
     int dropping_;          // = 1 if in dropping state.
     int maxpacket_;         // largest packet we've seen so far (this should be
                             // the link's MTU but that's not available in NS)
+    //for ECN marking
+    double thresh_;
 
     // NS-specific junk
     int command(int argc, const char*const* argv);

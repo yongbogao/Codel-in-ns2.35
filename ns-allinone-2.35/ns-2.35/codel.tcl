@@ -108,6 +108,7 @@ Agent/TCP/FullTcp set segsperack_ 1
 Agent/TCP/FullTcp set timestamps_ true
 Agent/TCP/FullTcp set interval_ $delack
 
+Queue/CoDel set thresh_ [expr $bdp]
 
 Agent/TCP/Linux instproc done {} {
 	global ns filesize
